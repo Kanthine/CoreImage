@@ -50,9 +50,9 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         tableView.deselectRow(at: indexPath, animated: true)
         let item = dataArray[indexPath.row]
         if item == "扫描二维码" {
-            let scanQRCodeVC : ScanQRCodeViewController = ScanQRCodeViewController()
-            scanQRCodeVC.navigationItem.title = item
-            self.navigationController?.pushViewController(scanQRCodeVC, animated: true)
+//            let scanQRCodeVC : ScanQRCodeViewController = ScanQRCodeViewController()!
+//            scanQRCodeVC.navigationItem.title = item
+//            self.navigationController?.pushViewController(scanQRCodeVC, animated: true)
         }else if item == "创建二维码" {
             let creatQRCodeVC : QRCodeCreatViewController = QRCodeCreatViewController()
             creatQRCodeVC.navigationItem.title = item

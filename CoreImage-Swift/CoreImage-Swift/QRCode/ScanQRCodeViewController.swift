@@ -49,141 +49,88 @@ UINavigationControllerDelegate, UIImagePickerControllerDelegate{
         super.viewDidLoad()
 
     }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        preView.frame = view.bounds
+    }
+    
+    // MARK: - response click
+    @objc func leftBtnAction() {
+    
+    }
+    @objc func rightBarButtonItenAction() {
+    
+    }
+    @objc func flashButtonClick(sender : UIButton) {
+    
+    }
+    
+    // MARK: - private method
+    
+    func addTopButton() {
+        let backButton = UIButton(type: .custom)
+        backButton.setImage(UIImage(named: "navBar_LeftButton_Back"), for: .normal)
+        backButton.setImage(UIImage(named: "navBar_LeftButton_Back_Pressed"), for: .highlighted)
+        backButton.addTarget(self, action: #selector(leftBtnAction), for: .touchUpInside)
+        backButton.adjustsImageWhenHighlighted = false
+        backButton.contentHorizontalAlignment = .left
+        backButton.frame = CGRect(x: 10, y: 20, width: 60, height: 44)
+        view.addSubview(backButton)
+        
+        let libraryButton = UIButton(type: .custom)
+        libraryButton.setImage(UIImage(named: "navBar_Library"), for: .normal)
+        libraryButton.addTarget(self, action: #selector(rightBarButtonItenAction), for: .touchUpInside)
+        libraryButton.adjustsImageWhenHighlighted = false
+        libraryButton.frame = CGRect(x: UIScreen.main.bounds.width - 120, y: 20, width: 60, height: 44)
+        view.addSubview(libraryButton)
+
+        let flashButton = UIButton(type: .custom)
+        flashButton.setImage(UIImage(named: "navBar_FlashOff"), for: .normal)
+        flashButton.setImage(UIImage(named: "navBar_FlashOn"), for: .selected)
+        flashButton.addTarget(self, action: #selector(flashButtonClick(sender:)), for: .touchUpInside)
+        flashButton.adjustsImageWhenHighlighted = false
+        flashButton.frame = CGRect(x: UIScreen.main.bounds.width - 60, y: 20, width: 60, height: 44)
+        view.addSubview(flashButton)
+
+    }
+ 
+    func initCaptureSession() {
+        session = AVCaptureSession()
+        previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        device = AVCaptureDevice.default(for: .video)
+        let input = AVCaptureDeviceInput(device: device)
+        let output = AVCaptureMetadataOutput()
+        output.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+        
+        let x = qrCodeView.scanRect.origin.x
+        let width = qrCodeView.scanRect.width
+        let y = qrCodeView.scanRect.origin.y
+        output.rectOfInterest = CGRect(x: y / UIScreen.main.bounds.height, y: x / UIScreen.main.bounds.width, width: width / UIScreen.main.bounds.height, height: width / UIScreen.main.bounds.width)
+        
+        session.sessionPreset = .hd1920x1080
+        if session.canSetSessionPreset(.hd1920x1080) {
+            session.sessionPreset = .hd1920x1080
+        }else if session.canSetSessionPreset(.iFrame1280x720) {
+            session.sessionPreset = .iFrame1280x720
+        }else {
+            session.sessionPreset = .high
+        }
+        session.addInput(input)
+        session.addOutput(output)
+        output.metadataObjectTypes = [AVMetadataObject.ObjectType.qr,AVMetadataObject.ObjectType.ean13,
+                                      AVMetadataObject.ObjectType.ean8,AVMetadataObject.ObjectType.code128]
+        previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        previewLayer.frame = view.bounds
+        
+        preView.layer.addSublayer(previewLayer)
+        session.startRunning()
+        qrCodeView.startScanAnimation()
+    }
 }
 
-
-//
-//@implementation ScanQRCodeViewController
-//
-//#pragma mark - lift cycle
-//
-//- (instancetype)init{
-//    self = [super init];
-//    if (self){
-//        [self initCaptureSession];
-//    }
-//    return self;
-//}
-//
-//- (void)viewDidLoad{
-//    [super viewDidLoad];
-//
-//    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"相册" style:(UIBarButtonItemStyleDone) target:self action:@selector(rightBarButtonItenAction)];
-//
-//    [self.view addSubview:self.preView];
-//    [self.view addSubview:self.qrCodeView];
-//
-//    [self addTopButton];
-//}
-//
-//- (void)viewWillAppear:(BOOL)animated{
-//    [super viewWillAppear:animated];
-//    if (self.session.isRunning == NO){
-//        [self.preView.layer addSublayer:self.previewLayer];
-//        [self.session startRunning];
-//    }
-//    [self.qrCodeView startScanAnimation];
-//}
-//
-//- (void)viewWillLayoutSubviews{
-//    [super viewWillLayoutSubviews];
-//    self.preView.frame = self.view.bounds;
-//}
-//
-//- (void)didReceiveMemoryWarning{
-//    [super didReceiveMemoryWarning];
-//    // Dispose of any resources that can be recreated.
-//}
-//
 //#pragma mark - private method
-//
-//- (void)addTopButton{
-//    UIButton *backButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [backButton setImage:[UIImage imageNamed:@"navBar_LeftButton_Back"] forState:UIControlStateNormal];
-//    [backButton setImage:[UIImage imageNamed:@"navBar_LeftButton_Back_Pressed"] forState:UIControlStateHighlighted];
-//    [backButton addTarget:self action:@selector(leftBtnAction) forControlEvents:UIControlEventTouchUpInside];
-//    backButton.adjustsImageWhenHighlighted = NO;
-//    backButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
-//    backButton.frame = CGRectMake(10, 20, 60, 44);
-//
-//    UIButton *libraryButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [libraryButton setImage:[UIImage imageNamed:@"navBar_Library"] forState:UIControlStateNormal];
-//    [libraryButton addTarget:self action:@selector(rightBarButtonItenAction) forControlEvents:UIControlEventTouchUpInside];
-//    libraryButton.adjustsImageWhenHighlighted = NO;
-//    libraryButton.frame = CGRectMake(CGRectGetWidth(UIScreen.mainScreen.bounds) - 120, 20, 60, 44);
-//
-//
-//    UIButton *flashButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [flashButton setImage:[UIImage imageNamed:@"navBar_FlashOff"] forState:UIControlStateNormal];
-//    [flashButton setImage:[UIImage imageNamed:@"navBar_FlashOn"] forState:UIControlStateSelected];
-//    [flashButton addTarget:self action:@selector(flashButtonClick:) forControlEvents:UIControlEventTouchUpInside];
-//    flashButton.adjustsImageWhenHighlighted = NO;
-//    flashButton.frame = CGRectMake(CGRectGetWidth(UIScreen.mainScreen.bounds) - 60, 20, 60, 44);
-//
-//
-//    [self.view addSubview:backButton];
-//    [self.view addSubview:libraryButton];
-//    [self.view addSubview:flashButton];
-//}
-//
-//- (void)initCaptureSession{
-//    // 初始化链接对象（会话对象）
-//    self.session = [[AVCaptureSession alloc] init];
-//    // 实例化预览图层, 传递_session是为了告诉图层将来显示什么内容
-//    self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:_session];
-//
-//    // 1、获取摄像设备
-//    self.device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-//    // 2、创建输入流
-//    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:self.device error:nil];
-//
-//    // 3、创建输出流
-//    AVCaptureMetadataOutput *output = [[AVCaptureMetadataOutput alloc] init];
-//
-//    // 4、设置代理 在主线程里刷新
-//    [output setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
-//
-//    // 设置扫描范围(每一个取值0～1，以屏幕右上角为坐标原点)
-//    // 要想限制二维码扫描区域，需要设置一个参数rectOfInterest 这个参数有点特别，这个参数的React 与平常设置的坐标系是完全相反的，即X与Y互换、W与H互换。
-//
-//    CGFloat x = self.qrCodeView.scanRect.origin.x;
-//    CGFloat width = CGRectGetWidth(self.qrCodeView.scanRect);
-//    CGFloat y = self.qrCodeView.scanRect.origin.y;
-//
-//    output.rectOfInterest = CGRectMake(y / CGRectGetHeight(UIScreen.mainScreen.bounds), x / CGRectGetWidth(UIScreen.mainScreen.bounds), width / CGRectGetHeight(UIScreen.mainScreen.bounds), width / CGRectGetWidth(UIScreen.mainScreen.bounds));
-//
-//    // 5、初始化链接对象（会话对象）
-//    // 高质量采集率
-//    //session.sessionPreset = AVCaptureSessionPreset1920x1080; // 如果二维码图片过小、或者模糊请使用这句代码，注释下面那句代码
-//    if ([self.session canSetSessionPreset:AVCaptureSessionPreset1920x1080]){
-//        self.session.sessionPreset = AVCaptureSessionPreset1920x1080;
-//    }else if ([self.session canSetSessionPreset:AVCaptureSessionPreset1280x720]){
-//        self.session.sessionPreset = AVCaptureSessionPreset1280x720;
-//    }else{
-//        self.session.sessionPreset = AVCaptureSessionPresetHigh;
-//    }
-//
-//    // 5.1 添加会话输入
-//    [self.session addInput:input];
-//
-//    // 5.2 添加会话输出
-//    [self.session addOutput:output];
-//
-//    // 6、设置输出数据类型，需要将元数据输出添加到会话后，才能指定元数据类型，否则会报错
-//    // 设置扫码支持的编码格式(如下设置条形码和二维码兼容)
-//    output.metadataObjectTypes = @[AVMetadataObjectTypeQRCode, AVMetadataObjectTypeEAN13Code,  AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeCode128Code];
-//
-//    // 7、实例化预览图层, 传递_session是为了告诉图层将来显示什么内容
-//    self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-//    self.previewLayer.frame = CGRectMake(0, 0, CGRectGetWidth(UIScreen.mainScreen.bounds), CGRectGetHeight(UIScreen.mainScreen.bounds));
-//
-//    // 8、将图层插入当前视图
-//    [self.preView.layer addSublayer:self.previewLayer];
-//    // 9、启动会话
-//    [self.session startRunning];
-//    [self.qrCodeView startScanAnimation];
-//}
-//
+
 ///** 播放完成回调函数
 // *  @param soundID    系统声音ID
 // *  @param clientData 回调时传递的数据
@@ -239,6 +186,39 @@ UINavigationControllerDelegate, UIImagePickerControllerDelegate{
 //        [self.navigationController popViewControllerAnimated:YES];
 //    }
 //}
+
+//
+//#pragma mark - lift cycle
+//
+//- (instancetype)init{
+//    self = [super init];
+//    if (self){
+//        [self initCaptureSession];
+//    }
+//    return self;
+//}
+//
+//- (void)viewDidLoad{
+//    [super viewDidLoad];
+//
+//    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"相册" style:(UIBarButtonItemStyleDone) target:self action:@selector(rightBarButtonItenAction)];
+//
+//    [self.view addSubview:self.preView];
+//    [self.view addSubview:self.qrCodeView];
+//
+//    [self addTopButton];
+//}
+//
+//- (void)viewWillAppear:(BOOL)animated{
+//    [super viewWillAppear:animated];
+//    if (self.session.isRunning == NO){
+//        [self.preView.layer addSublayer:self.previewLayer];
+//        [self.session startRunning];
+//    }
+//    [self.qrCodeView startScanAnimation];
+//}
+
+
 //
 //#pragma mark - response click
 //
