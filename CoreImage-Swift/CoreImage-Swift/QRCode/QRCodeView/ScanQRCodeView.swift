@@ -12,7 +12,6 @@ class ScanQRCodeView: UIView {
 
     /// 扫描框的坐标
     var scanRect : CGRect!
-        
     ///懒加载
     lazy var gradientLayer : CAGradientLayer = {
         let gLayer = CAGradientLayer()
@@ -73,14 +72,15 @@ class ScanQRCodeView: UIView {
     
     func startScanAnimation() {
         layer.addSublayer(gradientLayer)
-        let startPoint = CGPoint(x: frame.width / 2.0, y: scanRect.origin.y + 3)
-        let endPoint = CGPoint(x: frame.width / 2.0, y: scanRect.maxY - 6)
+        let startPoint = CGPoint(x: UIScreen.main.bounds.width / 2.0, y: scanRect.origin.y + 3)
+        let endPoint = CGPoint(x: UIScreen.main.bounds.width / 2.0, y: scanRect.maxY - 6)
         let scanNetAnimation = CABasicAnimation(keyPath: "position")
         scanNetAnimation.fromValue = NSValue.init(cgPoint: startPoint)
         scanNetAnimation.toValue = NSValue.init(cgPoint: endPoint)
         scanNetAnimation.duration = 2.0
         scanNetAnimation.repeatCount = MAXFLOAT
-        self.gradientLayer.add(scanNetAnimation, forKey: "scanNetAnimation")
+        scanNetAnimation.isRemovedOnCompletion = true
+        gradientLayer.add(scanNetAnimation, forKey: "scanNetAnimation")
     }
     
     func stopScanAnimation() {

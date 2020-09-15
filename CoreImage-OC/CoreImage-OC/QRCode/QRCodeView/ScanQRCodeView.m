@@ -102,7 +102,6 @@
         gradientLayer.endPoint = CGPointMake(0, 1.0);
         gradientLayer.frame = CGRectMake(self.scanRect.origin.x + 5, self.scanRect.origin.y, CGRectGetWidth(self.scanRect) - 10, 2);
         
-        
         _gradientLayer = gradientLayer;
     }
     return _gradientLayer;
